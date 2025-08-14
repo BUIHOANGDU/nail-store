@@ -3,112 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin - Quản lý Combo & Sản phẩm</title>
+  <title>Admin - Quản lý Combo, Sản phẩm & Menu Café</title>
   <style>
+    :root{
+      --pink:#ec4899; --pink-2:#f472b6; --bg:#ffeef5; --ring:#f9a8d4;
+    }
+    *{box-sizing:border-box}
     body {
-      font-family: 'Quicksand', sans-serif;
-      background: #ffeef5;
+      font-family: 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
       padding: 30px;
       color: #333;
+      line-height: 1.45;
     }
+    h1,h2{color:var(--pink); margin: 16px 0 8px}
+    .muted{color:#666; font-size:14px}
     input, textarea, select {
-      display: block;
-      margin: 10px 0;
-      padding: 10px;
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid #f9a8d4;
-      font-family: inherit;
+      display: block; margin: 10px 0; padding: 10px; width: 100%;
+      border-radius: 12px; border: 1px solid var(--ring); font-family: inherit; background:#fff
     }
-    img {
-      max-width: 150px;
-      display: block;
-      margin: 10px 0;
-      border-radius: 12px;
-    }
-    .combo {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
-    }
-    .combo button {
-      background: #f472b6;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 12px;
-      font-weight: bold;
-      margin-right: 10px;
-      cursor: pointer;
-    }
-    .combo button:hover {
-      background: #ec4899;
-    }
-    h1, h2 {
-      color: #ec4899;
-    }
-    button {
-      background: #f472b6;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 20px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      margin: 10px 0;
-    }
-    button:hover {
-      background: #ec4899;
-    }
+    input[type="file"]{padding:8px}
+    img { max-width: 150px; display: block; margin: 10px 0; border-radius: 12px; }
+    .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(255, 105, 180, 0.15); }
+    .row{display:grid; grid-template-columns: repeat(12,1fr); gap:16px}
+    .col-4{grid-column: span 4}
+    .col-6{grid-column: span 6}
+    .col-12{grid-column: span 12}
+    @media (max-width:900px){ .col-4,.col-6{grid-column: span 12} }
+    button { background: var(--pink-2); color: white; border: none; padding: 10px 16px; border-radius: 16px; font-size: 14px; font-weight: 700; cursor: pointer; margin: 6px 6px 6px 0; }
+    button:hover { background: var(--pink); }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .toolbar{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+    .badge{display:inline-block; padding:3px 10px; border-radius:999px; background:#fde7f2; color:#a41460; font-size:12px; font-weight:700}
+    .stack{display:flex; flex-wrap:wrap; gap:12px}
+    .grid{display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap:16px}
+    .hint{font-size:12px; color:#777}
+    .divider{height:1px; background:#ffd1e7; margin:20px 0}
   </style>
 </head>
 <body>
-  <h1>👩‍💼 Quản lý Combo & Sản phẩm</h1>
-  <div id="user-info"></div>
-  <button id="loginBtn" onclick="login()">Đăng nhập Google</button>
+  <div class="wrap">
+    <h1>👩‍💼 Bảng điều khiển Admin</h1>
+    <div id="user-info" class="muted"></div>
+    <div class="toolbar">
+      <button id="loginBtn" onclick="login()">Đăng nhập Google</button>
+      <span class="badge">Chỉ chủ tiệm nên có quyền truy cập trang này</span>
+    </div>
 
-  <!-- COMBO -->
-  <h2>Thêm combo mới</h2>
-  <select id="comboType">
-    <option value="highlighted">Combo nổi bật</option>
-    <option value="top">Mẫu nail yêu thích nhất</option>
-  </select>
-  <input type="text" id="comboName" placeholder="Tên combo" />
-  <input type="text" id="comboPrice" placeholder="Giá combo (vd: 580000)" />
-  <textarea id="comboDesc" placeholder="Mô tả"></textarea>
-  <input type="file" id="comboImg" />
-  <button onclick="addCombo()">Thêm combo</button>
-  
+    <!-- =============== COMBOS =============== -->
+    <div class="divider"></div>
+    <h2>💝 Thêm combo mới</h2>
+    <div class="row card">
+      <div class="col-6">
+        <label>Nhóm combo</label>
+        <select id="comboType">
+          <option value="highlighted">Combo nổi bật</option>
+          <option value="top">Mẫu nail yêu thích nhất</option>
+        </select>
+        <input type="text" id="comboName" placeholder="Tên combo" />
+        <input type="text" id="comboPrice" placeholder="Giá combo (vd: 580000)" oninput="digitsOnly(this)" />
+        <textarea id="comboDesc" placeholder="Mô tả combo"></textarea>
+      </div>
+      <div class="col-6">
+        <label>Ảnh combo</label>
+        <input type="file" id="comboImg" accept="image/*" />
+        <button onclick="addCombo()">➕ Thêm combo</button>
+        <div class="hint">Ảnh sẽ được tải lên Firebase Storage.</div>
+      </div>
+    </div>
 
-  <h2>Danh sách combo nổi bật</h2>
-  <div id="highlightedCombos"></div>
+    <h2>📋 Danh sách Combo nổi bật</h2>
+    <div id="highlightedCombos" class="grid"></div>
 
-  <h2>Danh sách mẫu nail yêu thích nhất</h2>
-  <div id="topCombos"></div>
+    <h2>⭐ Danh sách Mẫu nail yêu thích nhất</h2>
+    <div id="topCombos" class="grid"></div>
 
-  <!-- SẢN PHẨM -->
-  <h2>🛍️ Quản lý sản phẩm Nail & Nail Shop</h2>
-  <select id="productType">
-    <option value="nail">Nail</option>
-    <option value="phu-kien">Phụ kiện</option>
-    <option value="gel">Gel</option>
-  </select>
-  <input type="text" id="productName" placeholder="Tên sản phẩm" />
-  <input type="text" id="productPrice" placeholder="Giá (vd: 120000)" />
-  <input type="file" id="productImg" />
-  <button onclick="addProduct()">Thêm sản phẩm</button>
-  <div id="productList"></div>
-  
+    <!-- =============== PRODUCTS =============== -->
+    <div class="divider"></div>
+    <h2>🛍️ Quản lý sản phẩm Nail & Nail Shop</h2>
+    <div class="row card">
+      <div class="col-6">
+        <label>Loại sản phẩm</label>
+        <select id="productType">
+          <option value="nail">Nail</option>
+          <option value="gel">Gel</option>
+          <option value="phu-kien">Phụ kiện</option>
+        </select>
+        <input type="text" id="productName" placeholder="Tên sản phẩm" />
+        <input type="text" id="productPrice" placeholder="Giá (vd: 120000)" oninput="digitsOnly(this)" />
+      </div>
+      <div class="col-6">
+        <label>Ảnh sản phẩm</label>
+        <input type="file" id="productImg" accept="image/*" />
+        <button onclick="addProduct()">➕ Thêm sản phẩm</button>
+      </div>
+    </div>
+    <div id="productList" class="grid"></div>
 
-  <!-- FIREBASE -->
+    <!-- =============== MENU BÁNH & CÀ PHÊ =============== -->
+    <div class="divider"></div>
+    <h2>🍰☕ Quản lý Menu bánh & cà phê</h2>
+    <div class="row card">
+      <div class="col-6">
+        <label>Nhóm menu</label>
+        <select id="menuCategory">
+          <option value="coffee">Cà phê/Đồ uống</option>
+          <option value="cake">Bánh ngọt</option>
+        </select>
+        <input type="text" id="menuName" placeholder="Tên món (vd: Latte, Tiramisu)" />
+        <input type="text" id="menuPrice" placeholder="Giá (vd: 45000)" oninput="digitsOnly(this)" />
+      </div>
+      <div class="col-6">
+        <label>Ảnh món</label>
+        <input type="file" id="menuImg" accept="image/*" />
+        <button onclick="addMenuItem()">➕ Thêm món</button>
+      </div>
+    </div>
+    <h3>Đồ uống</h3>
+    <div id="menuCoffee" class="grid"></div>
+    <h3>Bánh ngọt</h3>
+    <div id="menuCake" class="grid"></div>
+  </div>
+
+  <!-- =============== FIREBASE SDKs =============== -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
   <script>
+    // ==== CẤU HÌNH FIREBASE (giữ nguyên dự án của bạn) ====
     const firebaseConfig = {
       apiKey: "AIzaSyC2OVhgdTn15eTSmKhZxw3lkC3Wqz0TmRg",
       authDomain: "nail-fcd76.firebaseapp.com",
@@ -120,13 +145,34 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    const storage = firebase.storage();
 
+    // ====== TIỆN ÍCH CHUNG ======
+    function digitsOnly(el){ el.value = el.value.replace(/[^\d]/g, ''); }
+
+    async function uploadToStorage(pathPrefix, file){
+      const fileName = `${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
+      const ref = storage.ref().child(`${pathPrefix}/${fileName}`);
+      await ref.put(file);
+      return await ref.getDownloadURL();
+    }
+
+    function money(v){
+      if (v === undefined || v === null || isNaN(v)) return '';
+      return Number(v).toLocaleString('vi-VN');
+    }
+
+    // ====== AUTH ======
     auth.onAuthStateChanged(user => {
       if (user) {
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("user-info").innerText = `✅ Đã đăng nhập: ${user.email}`;
         loadComboList();
         loadProductList();
+        loadMenuList();
+      } else {
+        document.getElementById("loginBtn").style.display = "inline-flex";
+        document.getElementById("user-info").innerText = 'Chưa đăng nhập';
       }
     });
 
@@ -135,217 +181,213 @@
       auth.signInWithPopup(provider).then(result => {
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("user-info").innerText = `✅ Đã đăng nhập: ${result.user.email}`;
-        loadComboList();
-        loadProductList();
+        loadComboList(); loadProductList(); loadMenuList();
       });
     }
 
-    // COMBO =========================
-   function addCombo() {
-  const name = document.getElementById("comboName").value;
-  const desc = document.getElementById("comboDesc").value;
- const price = parseInt(document.getElementById("comboPrice").value.replace(/[^\d]/g, ""));
-  const type = document.getElementById("comboType").value;
-  const file = document.getElementById("comboImg").files[0];
-
-  if (!file || !name || !price) return alert("Điền đầy đủ thông tin và chọn ảnh!");
-
-  const form = new FormData();
-  form.append("image", file);
-  fetch("https://api.imgur.com/3/image", {
-    method: "POST",
-    headers: { Authorization: "Client-ID 7bd825b419d3d23" },
-    body: form
-  })
-  .then(res => res.json())
-  .then(data => {
-    return db.collection("combos").add({
-      name, desc, price, imageUrl: data.data.link, type
-    });
-  })
-  .then(() => {
-    alert("Đã thêm combo");
-    loadComboList();
-  });
-}
-function updateCombo(id) {
-  const name = document.getElementById(`name-${id}`).value;
-  const desc = document.getElementById(`desc-${id}`).value;
-  const price = parseInt(document.getElementById(`price-${id}`).value.replace(/[^\d]/g, ""));
-  const fileInput = document.getElementById(`img-${id}`);
-  const file = fileInput.files[0];
-
-  const updateData = { name, desc, price };
-
-  if (file) {
-    const form = new FormData();
-    form.append("image", file);
-    fetch("https://api.imgur.com/3/image", {
-      method: "POST",
-      headers: { Authorization: "Client-ID 7bd825b419d3d23" },
-      body: form
-    })
-    .then(res => res.json())
-    .then(data => {
-      updateData.imageUrl = data.data.link;
-      return db.collection("combos").doc(id).update(updateData);
-    })
-    .then(() => {
-      alert("Đã cập nhật!");
+    // ====== COMBOS ======
+    async function addCombo(){
+      const name = document.getElementById('comboName').value.trim();
+      const desc = document.getElementById('comboDesc').value.trim();
+      const price = parseInt(document.getElementById('comboPrice').value.replace(/[^\d]/g,''));
+      const type = document.getElementById('comboType').value;
+      const file = document.getElementById('comboImg').files[0];
+      if(!file || !name || !price){ alert('Điền đầy đủ thông tin và chọn ảnh!'); return; }
+      const imageUrl = await uploadToStorage('combos', file);
+      await db.collection('combos').add({ name, desc, price, type, imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      alert('Đã thêm combo');
+      document.getElementById('comboName').value = '';
+      document.getElementById('comboDesc').value = '';
+      document.getElementById('comboPrice').value = '';
+      document.getElementById('comboImg').value = '';
       loadComboList();
-    });
-  } else {
-    db.collection("combos").doc(id).update(updateData).then(() => {
-      alert("Đã cập nhật!");
+    }
+
+    function comboCard(doc){
+      const d = doc.data();
+      const id = doc.id;
+      const wrap = document.createElement('div');
+      wrap.className = 'card';
+      wrap.innerHTML = `
+        <img src="${d.imageUrl}" alt="combo" />
+        <input id="name-${id}" type="text" value="${d.name || ''}" />
+        <input id="price-${id}" type="text" value="${d.price || ''}" oninput="digitsOnly(this)" placeholder="Giá" />
+        <textarea id="desc-${id}">${d.desc || ''}</textarea>
+        <div class="stack">
+          <input id="img-${id}" type="file" accept="image/*" />
+          <button onclick="updateCombo('${id}')">Cập nhật</button>
+          <button onclick="deleteCombo('${id}')">Xoá</button>
+          <span class="badge">${d.type}</span>
+        </div>
+      `;
+      return wrap;
+    }
+
+    async function updateCombo(id){
+      const name = document.getElementById(`name-${id}`).value.trim();
+      const desc = document.getElementById(`desc-${id}`).value.trim();
+      const price = parseInt(document.getElementById(`price-${id}`).value.replace(/[^\d]/g,''));
+      const fileInput = document.getElementById(`img-${id}`);
+      const file = fileInput.files[0];
+      const ref = db.collection('combos').doc(id);
+      const current = (await ref.get()).data() || {};
+      let imageUrl = current.imageUrl;
+      if(file){ imageUrl = await uploadToStorage('combos', file); }
+      await ref.update({ name, desc, price, imageUrl });
+      alert('Đã cập nhật combo!');
       loadComboList();
-    });
-  }
-}
-
-    function deleteCombo(id) {
-      if (confirm("Xoá combo này?")) {
-        db.collection("combos").doc(id).delete().then(loadComboList);
-      }
     }
 
-   function renderCombo(doc, container) {
-  const data = doc.data();
-  const div = document.createElement("div");
-  div.className = "combo";
-  div.innerHTML = `
-    <img src="${data.imageUrl}" />
-    <input type="text" value="${data.name}" id="name-${doc.id}" />
-    <input type="text" value="${data.price || ''}" id="price-${doc.id}" placeholder="Giá combo" />
-    <textarea id="desc-${doc.id}">${data.desc}</textarea>
-    <input type="file" id="img-${doc.id}" />
-    <button onclick="updateCombo('${doc.id}')">Cập nhật</button>
-    <button onclick="deleteCombo('${doc.id}')">Xoá</button>
-  `;
-  container.appendChild(div);
-}
-
-
-    function loadComboList() {
-      const highlighted = document.getElementById("highlightedCombos");
-      const top = document.getElementById("topCombos");
-      highlighted.innerHTML = top.innerHTML = "";
-      db.collection("combos").get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          if (data.type === "highlighted") renderCombo(doc, highlighted);
-          else if (data.type === "top") renderCombo(doc, top);
-        });
-      });
+    async function deleteCombo(id){
+      if(!confirm('Xoá combo này?')) return;
+      await db.collection('combos').doc(id).delete();
+      loadComboList();
     }
 
-    // PRODUCT =========================
-    function addProduct() {
-      const name = document.getElementById("productName").value;
-     const price = parseInt(document.getElementById("productPrice").value.replace(/[^\d]/g, ""));
-      const type = document.getElementById("productType").value;
-      const file = document.getElementById("productImg").files[0];
-      if (!file || !name || !price) return alert("Điền đủ thông tin và chọn ảnh!");
-
-      const form = new FormData();
-      form.append("image", file);
-      fetch("https://api.imgur.com/3/image", {
-        method: "POST",
-        headers: { Authorization: "Client-ID 7bd825b419d3d23" },
-        body: form
+    function loadComboList(){
+      const highlighted = document.getElementById('highlightedCombos');
+      const top = document.getElementById('topCombos');
+      highlighted.innerHTML = top.innerHTML = '';
+      db.collection('combos').orderBy('type').orderBy('createdAt','desc').get().then(ss=>{
+        ss.forEach(doc=>{
+          const d = doc.data();
+          if(d.type === 'highlighted') highlighted.appendChild(comboCard(doc));
+          else if(d.type === 'top') top.appendChild(comboCard(doc));
+        })
       })
-      .then(res => res.json())
-      .then(data => {
-        return db.collection("products").add({
-          name, price, type, imageUrl: data.data.link
-        });
-      })
-      .then(() => {
-        alert("Đã thêm sản phẩm!");
-        loadProductList();
-      });
     }
 
-    function updateProduct(id) {
-      const name = document.getElementById(`pname-${id}`).value;
-      const price = parseInt(document.getElementById(`pprice-${id}`).value.replace(/[^\d]/g, ""));
+    // ====== PRODUCTS ======
+    async function addProduct(){
+      const name = document.getElementById('productName').value.trim();
+      const price = parseInt(document.getElementById('productPrice').value.replace(/[^\d]/g,''));
+      const type = document.getElementById('productType').value;
+      const file = document.getElementById('productImg').files[0];
+      if(!file || !name || !price){ alert('Điền đủ thông tin và chọn ảnh!'); return; }
+      const imageUrl = await uploadToStorage('products', file);
+      await db.collection('products').add({ name, price, type, imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      alert('Đã thêm sản phẩm!');
+      document.getElementById('productName').value = '';
+      document.getElementById('productPrice').value = '';
+      document.getElementById('productImg').value = '';
+      loadProductList();
+    }
+
+    function productCard(doc){
+      const d = doc.data(); const id = doc.id;
+      const el = document.createElement('div'); el.className = 'card';
+      el.innerHTML = `
+        <img src="${d.imageUrl}" alt="product" />
+        <input id="pname-${id}" type="text" value="${d.name || ''}" />
+        <input id="pprice-${id}" type="text" value="${d.price || ''}" oninput="digitsOnly(this)" />
+        <select id="ptype-${id}">
+          <option value="nail" ${d.type==='nail'?'selected':''}>Nail</option>
+          <option value="gel" ${d.type==='gel'?'selected':''}>Gel</option>
+          <option value="phu-kien" ${d.type==='phu-kien'?'selected':''}>Phụ kiện</option>
+        </select>
+        <div class="stack">
+          <input id="pimg-${id}" type="file" accept="image/*" />
+          <button onclick="updateProduct('${id}')">Cập nhật</button>
+          <button onclick="deleteProduct('${id}')">Xoá</button>
+          <span class="badge">${d.type}</span>
+        </div>`;
+      return el;
+    }
+
+    async function updateProduct(id){
+      const name = document.getElementById(`pname-${id}`).value.trim();
+      const price = parseInt(document.getElementById(`pprice-${id}`).value.replace(/[^\d]/g,''));
       const type = document.getElementById(`ptype-${id}`).value;
       const file = document.getElementById(`pimg-${id}`).files[0];
-      const updateData = { name, price, type };
+      const ref = db.collection('products').doc(id);
+      const current = (await ref.get()).data() || {};
+      let imageUrl = current.imageUrl;
+      if(file){ imageUrl = await uploadToStorage('products', file); }
+      await ref.update({ name, price, type, imageUrl });
+      alert('Đã cập nhật sản phẩm!');
+      loadProductList();
+    }
 
-      if (file) {
-        const form = new FormData();
-        form.append("image", file);
-        fetch("https://api.imgur.com/3/image", {
-          method: "POST",
-          headers: { Authorization: "Client-ID 7bd825b419d3d23" },
-          body: form
+    async function deleteProduct(id){
+      if(!confirm('Xoá sản phẩm này?')) return;
+      await db.collection('products').doc(id).delete();
+      loadProductList();
+    }
+
+    function loadProductList(){
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+      const order = ['nail','gel','phu-kien'];
+      db.collection('products').orderBy('type').orderBy('createdAt','desc').get().then(ss=>{
+        const grouped = { nail:[], gel:[], 'phu-kien':[] };
+        ss.forEach(doc=>{ const d=doc.data(); if(grouped[d.type]) grouped[d.type].push(doc); });
+        order.forEach(t=> grouped[t].forEach(doc=> list.appendChild(productCard(doc))));
+      })
+    }
+
+    // ====== MENU (BÁNH & CÀ PHÊ) ======
+    async function addMenuItem(){
+      const category = document.getElementById('menuCategory').value;
+      const name = document.getElementById('menuName').value.trim();
+      const price = parseInt(document.getElementById('menuPrice').value.replace(/[^\d]/g,''));
+      const file = document.getElementById('menuImg').files[0];
+      if(!file || !name || !price){ alert('Điền đủ thông tin và chọn ảnh!'); return; }
+      const imageUrl = await uploadToStorage('menu', file);
+      await db.collection('menu').add({ category, name, price, imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      alert('Đã thêm món!');
+      document.getElementById('menuName').value = '';
+      document.getElementById('menuPrice').value = '';
+      document.getElementById('menuImg').value = '';
+      loadMenuList();
+    }
+
+    function menuCard(doc){
+      const d = doc.data(); const id = doc.id;
+      const el = document.createElement('div'); el.className = 'card';
+      el.innerHTML = `
+        <img src="${d.imageUrl}" alt="menu" />
+        <input id="mname-${id}" type="text" value="${d.name || ''}" />
+        <input id="mprice-${id}" type="text" value="${d.price || ''}" oninput="digitsOnly(this)" />
+        <div class="stack">
+          <input id="mimg-${id}" type="file" accept="image/*" />
+          <button onclick="updateMenuItem('${id}')">Cập nhật</button>
+          <button onclick="deleteMenuItem('${id}')">Xoá</button>
+          <span class="badge">${d.category}</span>
+        </div>`;
+      return el;
+    }
+
+    async function updateMenuItem(id){
+      const name = document.getElementById(`mname-${id}`).value.trim();
+      const price = parseInt(document.getElementById(`mprice-${id}`).value.replace(/[^\d]/g,''));
+      const file = document.getElementById(`mimg-${id}`).files[0];
+      const ref = db.collection('menu').doc(id);
+      const current = (await ref.get()).data() || {};
+      let imageUrl = current.imageUrl;
+      if(file){ imageUrl = await uploadToStorage('menu', file); }
+      await ref.update({ name, price, imageUrl });
+      alert('Đã cập nhật món!');
+      loadMenuList();
+    }
+
+    async function deleteMenuItem(id){
+      if(!confirm('Xoá món này?')) return;
+      await db.collection('menu').doc(id).delete();
+      loadMenuList();
+    }
+
+    function loadMenuList(){
+      const coffee = document.getElementById('menuCoffee');
+      const cake = document.getElementById('menuCake');
+      coffee.innerHTML = cake.innerHTML = '';
+      db.collection('menu').orderBy('category').orderBy('createdAt','desc').get().then(ss=>{
+        ss.forEach(doc=>{
+          const d = doc.data();
+          if(d.category==='coffee') coffee.appendChild(menuCard(doc));
+          else if(d.category==='cake') cake.appendChild(menuCard(doc));
         })
-        .then(res => res.json())
-        .then(data => {
-          updateData.imageUrl = data.data.link;
-          return db.collection("products").doc(id).update(updateData);
-        })
-        .then(() => {
-          alert("Đã cập nhật sản phẩm!");
-          loadProductList();
-        });
-      } else {
-        db.collection("products").doc(id).update(updateData).then(() => {
-          alert("Đã cập nhật!");
-          loadProductList();
-        });
-      }
+      })
     }
-
-    function deleteProduct(id) {
-      if (confirm("Xoá sản phẩm này?")) {
-        db.collection("products").doc(id).delete().then(loadProductList);
-      }
-    }
-
-    function renderProduct(doc) {
-      const data = doc.data();
-      const div = document.createElement("div");
-      div.className = "combo";
-      div.innerHTML = `
-        <img src="${data.imageUrl}" />
-        <input type="text" id="pname-${doc.id}" value="${data.name}" />
-        <input type="text" id="pprice-${doc.id}" value="${data.price}" />
-        <select id="ptype-${doc.id}">
-          <option value="nail" ${data.type === "nail" ? "selected" : ""}>Nail</option>
-          <option value="phu-kien" ${data.type === "phu-kien" ? "selected" : ""}>Phụ kiện</option>
-          <option value="gel" ${data.type === "gel" ? "selected" : ""}>Gel</option>
-        </select>
-        <input type="file" id="pimg-${doc.id}" />
-        <button onclick="updateProduct('${doc.id}')">Cập nhật</button>
-        <button onclick="deleteProduct('${doc.id}')">Xoá</button>
-      `;
-      document.getElementById("productList").appendChild(div);
-    }
-
-    function loadProductList() {
-  const list = document.getElementById("productList");
-  list.innerHTML = "";
-
-  const order = ["nail", "gel", "phu-kien"]; // thứ tự nhóm mong muốn
-
-  db.collection("products")
-    .orderBy("type") // sắp theo nhóm
-    .orderBy(firebase.firestore.FieldPath.documentId(), "desc") // mới nhất lên đầu mỗi nhóm
-    .get()
-    .then(snapshot => {
-      const grouped = { nail: [], gel: [], "phu-kien": [] };
-
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (grouped[data.type]) grouped[data.type].push(doc);
-      });
-
-      order.forEach(type => {
-        grouped[type].forEach(doc => renderProduct(doc));
-      });
-    });
-}
   </script>
 </body>
 </html>
