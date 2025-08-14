@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Quản lý Combo & Sản phẩm</title>
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: #ffeef5;
+      padding: 30px;
+      color: #333;
+    }
+    input, textarea, select {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #f9a8d4;
+      font-family: inherit;
+    }
+    img {
+      max-width: 150px;
+      display: block;
+      margin: 10px 0;
+      border-radius: 12px;
+    }
+    .combo {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
+    }
+    .combo button {
+      background: #f472b6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: bold;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .combo button:hover {
+      background: #ec4899;
+    }
+    h1, h2 {
+      color: #ec4899;
+    }
+    button {
+      background: #f472b6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #ec4899;
+    }
+  </style>
+</head>
+<body>
+  <h1>👩‍💼 Quản lý Combo & Sản phẩm</h1>
+  <div id="user-info"></div>
+  <button id="loginBtn" onclick="login()">Đăng nhập Google</button>
+
+  <!-- COMBO -->
+  <h2>Thêm combo mới</h2>
+  <select id="comboType">
+    <option value="highlighted">Combo nổi bật</option>
+    <option value="top">Mẫu nail yêu thích nhất</option>
+  </select>
+  <input type="text" id="comboName" placeholder="Tên combo" />
+  <input type="text" id="comboPrice" placeholder="Giá combo (vd: 580000)" />
+  <textarea id="comboDesc" placeholder="Mô tả"></textarea>
+  <input type="file" id="comboImg" />
+  <button onclick="addCombo()">Thêm combo</button>
+  
+
+  <h2>Danh sách combo nổi bật</h2>
+  <div id="highlightedCombos"></div>
+
+  <h2>Danh sách mẫu nail yêu thích nhất</h2>
+  <div id="topCombos"></div>
+
+  <!-- SẢN PHẨM -->
+  <h2>🛍️ Quản lý sản phẩm Nail & Nail Shop</h2>
+  <select id="productType">
+    <option value="nail">Nail</option>
+    <option value="phu-kien">Phụ kiện</option>
+    <option value="gel">Gel</option>
+  </select>
+  <input type="text" id="productName" placeholder="Tên sản phẩm" />
+  <input type="text" id="productPrice" placeholder="Giá (vd: 120000)" />
+  <input type="file" id="productImg" />
+  <button onclick="addProduct()">Thêm sản phẩm</button>
+  <div id="productList"></div>
+  
+
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2OVhgdTn15eTSmKhZxw3lkC3Wqz0TmRg",
+      authDomain: "nail-fcd76.firebaseapp.com",
+      projectId: "nail-fcd76",
+      storageBucket: "nail-fcd76.appspot.com",
+      messagingSenderId: "292496013690",
+      appId: "1:292496013690:web:09dd92cd65115c497e3ec3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("user-info").innerText = `✅ Đã đăng nhập: ${user.email}`;
+        loadComboList();
+        loadProductList();
+      }
+    });
+
+    function login() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).then(result => {
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("user-info").innerText = `✅ Đã đăng nhập: ${result.user.email}`;
+        loadComboList();
+        loadProductList();
+      });
+    }
+
+    // COMBO =========================
+   function addCombo() {
+  const name = document.getElementById("comboName").value;
+  const desc = document.getElementById("comboDesc").value;
+ const price = parseInt(document.getElementById("comboPrice").value.replace(/[^\d]/g, ""));
+  const type = document.getElementById("comboType").value;
+  const file = document.getElementById("comboImg").files[0];
+
+  if (!file || !name || !price) return alert("Điền đầy đủ thông tin và chọn ảnh!");
+
+  const form = new FormData();
+  form.append("image", file);
+  fetch("https://api.imgur.com/3/image", {
+    method: "POST",
+    headers: { Authorization: "Client-ID 7bd825b419d3d23" },
+    body: form
+  })
+  .then(res => res.json())
+  .then(data => {
+    return db.collection("combos").add({
+      name, desc, price, imageUrl: data.data.link, type
+    });
+  })
+  .then(() => {
+    alert("Đã thêm combo");
+    loadComboList();
+  });
+}
+function updateCombo(id) {
+  const name = document.getElementById(`name-${id}`).value;
+  const desc = document.getElementById(`desc-${id}`).value;
+  const price = parseInt(document.getElementById(`price-${id}`).value.replace(/[^\d]/g, ""));
+  const fileInput = document.getElementById(`img-${id}`);
+  const file = fileInput.files[0];
+
+  const updateData = { name, desc, price };
+
+  if (file) {
+    const form = new FormData();
+    form.append("image", file);
+    fetch("https://api.imgur.com/3/image", {
+      method: "POST",
+      headers: { Authorization: "Client-ID 7bd825b419d3d23" },
+      body: form
+    })
+    .then(res => res.json())
+    .then(data => {
+      updateData.imageUrl = data.data.link;
+      return db.collection("combos").doc(id).update(updateData);
+    })
+    .then(() => {
+      alert("Đã cập nhật!");
+      loadComboList();
+    });
+  } else {
+    db.collection("combos").doc(id).update(updateData).then(() => {
+      alert("Đã cập nhật!");
+      loadComboList();
+    });
+  }
+}
+
+    function deleteCombo(id) {
+      if (confirm("Xoá combo này?")) {
+        db.collection("combos").doc(id).delete().then(loadComboList);
+      }
+    }
+
+   function renderCombo(doc, container) {
+  const data = doc.data();
+  const div = document.createElement("div");
+  div.className = "combo";
+  div.innerHTML = `
+    <img src="${data.imageUrl}" />
+    <input type="text" value="${data.name}" id="name-${doc.id}" />
+    <input type="text" value="${data.price || ''}" id="price-${doc.id}" placeholder="Giá combo" />
+    <textarea id="desc-${doc.id}">${data.desc}</textarea>
+    <input type="file" id="img-${doc.id}" />
+    <button onclick="updateCombo('${doc.id}')">Cập nhật</button>
+    <button onclick="deleteCombo('${doc.id}')">Xoá</button>
+  `;
+  container.appendChild(div);
+}
+
+
+    function loadComboList() {
+      const highlighted = document.getElementById("highlightedCombos");
+      const top = document.getElementById("topCombos");
+      highlighted.innerHTML = top.innerHTML = "";
+      db.collection("combos").get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.type === "highlighted") renderCombo(doc, highlighted);
+          else if (data.type === "top") renderCombo(doc, top);
+        });
+      });
+    }
+
+    // PRODUCT =========================
+    function addProduct() {
+      const name = document.getElementById("productName").value;
+     const price = parseInt(document.getElementById("productPrice").value.replace(/[^\d]/g, ""));
+      const type = document.getElementById("productType").value;
+      const file = document.getElementById("productImg").files[0];
+      if (!file || !name || !price) return alert("Điền đủ thông tin và chọn ảnh!");
+
+      const form = new FormData();
+      form.append("image", file);
+      fetch("https://api.imgur.com/3/image", {
+        method: "POST",
+        headers: { Authorization: "Client-ID 7bd825b419d3d23" },
+        body: form
+      })
+      .then(res => res.json())
+      .then(data => {
+        return db.collection("products").add({
+          name, price, type, imageUrl: data.data.link
+        });
+      })
+      .then(() => {
+        alert("Đã thêm sản phẩm!");
+        loadProductList();
+      });
+    }
+
+    function updateProduct(id) {
+      const name = document.getElementById(`pname-${id}`).value;
+      const price = parseInt(document.getElementById(`pprice-${id}`).value.replace(/[^\d]/g, ""));
+      const type = document.getElementById(`ptype-${id}`).value;
+      const file = document.getElementById(`pimg-${id}`).files[0];
+      const updateData = { name, price, type };
+
+      if (file) {
+        const form = new FormData();
+        form.append("image", file);
+        fetch("https://api.imgur.com/3/image", {
+          method: "POST",
+          headers: { Authorization: "Client-ID 7bd825b419d3d23" },
+          body: form
+        })
+        .then(res => res.json())
+        .then(data => {
+          updateData.imageUrl = data.data.link;
+          return db.collection("products").doc(id).update(updateData);
+        })
+        .then(() => {
+          alert("Đã cập nhật sản phẩm!");
+          loadProductList();
+        });
+      } else {
+        db.collection("products").doc(id).update(updateData).then(() => {
+          alert("Đã cập nhật!");
+          loadProductList();
+        });
+      }
+    }
+
+    function deleteProduct(id) {
+      if (confirm("Xoá sản phẩm này?")) {
+        db.collection("products").doc(id).delete().then(loadProductList);
+      }
+    }
+
+    function renderProduct(doc) {
+      const data = doc.data();
+      const div = document.createElement("div");
+      div.className = "combo";
+      div.innerHTML = `
+        <img src="${data.imageUrl}" />
+        <input type="text" id="pname-${doc.id}" value="${data.name}" />
+        <input type="text" id="pprice-${doc.id}" value="${data.price}" />
+        <select id="ptype-${doc.id}">
+          <option value="nail" ${data.type === "nail" ? "selected" : ""}>Nail</option>
+          <option value="phu-kien" ${data.type === "phu-kien" ? "selected" : ""}>Phụ kiện</option>
+          <option value="gel" ${data.type === "gel" ? "selected" : ""}>Gel</option>
+        </select>
+        <input type="file" id="pimg-${doc.id}" />
+        <button onclick="updateProduct('${doc.id}')">Cập nhật</button>
+        <button onclick="deleteProduct('${doc.id}')">Xoá</button>
+      `;
+      document.getElementById("productList").appendChild(div);
+    }
+
+    function loadProductList() {
+  const list = document.getElementById("productList");
+  list.innerHTML = "";
+
+  const order = ["nail", "gel", "phu-kien"]; // thứ tự nhóm mong muốn
+
+  db.collection("products")
+    .orderBy("type") // sắp theo nhóm
+    .orderBy(firebase.firestore.FieldPath.documentId(), "desc") // mới nhất lên đầu mỗi nhóm
+    .get()
+    .then(snapshot => {
+      const grouped = { nail: [], gel: [], "phu-kien": [] };
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (grouped[data.type]) grouped[data.type].push(doc);
+      });
+
+      order.forEach(type => {
+        grouped[type].forEach(doc => renderProduct(doc));
+      });
+    });
+}
+  </script>
+</body>
+</html>

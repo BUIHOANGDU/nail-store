@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nail & Nail Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Dancing+Script&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fff0f5;
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+    }
+    header {
+      background-color: #ffe0ec;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5em;
+      color: #e91e63;
+      margin: 0;
+    }
+    .cart-btn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background-color: #f472b6;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .cart-btn:hover {
+      background-color: #ec4899;
+    }
+    .filter-bar {
+      text-align: center;
+      margin: 20px;
+    }
+    .filter-bar select {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: 1px solid #f9a8d4;
+      background-color: #fff;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .product-card {
+      background: white;
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 360px;
+    }
+    .product-card:hover {
+      transform: scale(1.03);
+    }
+    .product-card img {
+      width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .product-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .product-name {
+      margin-top: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #d63384;
+    }
+    .product-price {
+      color: #777;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    .add-to-cart {
+      background-color: #f472b6;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .add-to-cart:hover {
+      background-color: #ec4899;
+    }
+    footer {
+      background-color: #ffe0ec;
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      margin-top: 40px;
+    }
+    .popup-overlay, .cart-popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .popup-content {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .popup-content img {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+    .popup-close {
+      margin-top: 15px;
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .popup-close:hover {
+      background-color: #c2185b;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Nail & Nail Shop</h1>
+    <button class="cart-btn" onclick="showCart()">🛒 Giỏ (<span id="cart-count">0</span>)</button>
+  </header>
+
+  <div class="filter-bar">
+    <label for="filter">Lọc theo loại: </label>
+    <select id="filter" onchange="renderFilteredProducts()">
+      <option value="all">Tất cả</option>
+      <option value="nail">Nail</option>
+      <option value="phu-kien">Phụ kiện</option>
+      <option value="gel">Gel</option>
+    </select>
+  </div>
+
+  <div class="product-grid" id="product-list"></div>
+
+  <footer>
+    <p>&copy; 2025 Nail Café. All rights reserved.</p>
+  </footer>
+
+  <!-- Popup chi tiết sản phẩm -->
+  <div class="popup-overlay" id="popup">
+    <div class="popup-content">
+      <img id="popup-img" src="" alt="Ảnh sản phẩm">
+      <h3 id="popup-name"></h3>
+      <p id="popup-price"></p>
+      <button class="popup-close" onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Popup giỏ hàng -->
+  <div class="cart-popup popup-overlay" id="cart-popup">
+    <div class="popup-content">
+      <h3>🛒 Giỏ hàng của bạn</h3>
+      <div id="cart-items" style="text-align:left; max-height: 250px; overflow:auto;"></div>
+      <p><strong>Tổng tiền:</strong> <span id="cart-total">0</span></p>
+      <button onclick="submitOrder()">Xác nhận đơn</button>
+      <button onclick="clearCart()">Xóa tất cả</button>
+      <button class="popup-close" onclick="closeCartPopup()">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <!-- Giữ nguyên toàn bộ phần <head> và style của bạn -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyC2OVhgdTn15eTSmKhZxw3lkC3Wqz0TmRg",
+    authDomain: "nail-fcd76.firebaseapp.com",
+    projectId: "nail-fcd76",
+    storageBucket: "nail-fcd76.appspot.com",
+    messagingSenderId: "292496013690",
+    appId: "1:292496013690:web:09dd92cd65115c497e3ec3"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let allProducts = [];
+
+  function loadProducts() {
+    db.collection("products").get().then(snapshot => {
+      const typePriority = { "nail": 0, "gel": 1, "phu-kien": 2 };
+      allProducts = snapshot.docs.map(doc => {
+        const data = doc.data();
+        data.createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date(); // fallback
+        return data;
+      });
+
+      // Sắp xếp theo loại ưu tiên và mới nhất
+      allProducts.sort((a, b) => {
+        const typeDiff = typePriority[a.type] - typePriority[b.type];
+        if (typeDiff !== 0) return typeDiff;
+        return b.createdAt - a.createdAt;
+      });
+
+      renderFilteredProducts();
+    });
+  }
+
+  function renderFilteredProducts() {
+    const filter = document.getElementById("filter").value;
+    const container = document.getElementById("product-list");
+    container.innerHTML = "";
+    const filtered = filter === "all" ? allProducts : allProducts.filter(p => p.type === filter);
+
+    filtered.forEach(data => {
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.innerHTML = `
+        <img src="${data.imageUrl}" alt="${data.name}" onclick="showPopup('${data.name}', '${data.imageUrl}', '${data.price}')">
+        <div class="product-info">
+          <div class="product-name">${data.name}</div>
+          <div class="product-price">${Number(data.price).toLocaleString("vi-VN")}VND</div>
+        </div>
+        <button class="add-to-cart" onclick="addToCart('${data.name}', '${data.imageUrl}', '${data.price}')">Thêm vào giỏ</button>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function showPopup(name, img, price) {
+    document.getElementById("popup-name").innerText = name;
+    document.getElementById("popup-img").src = img;
+    document.getElementById("popup-price").innerText = `${Number(price).toLocaleString("vi-VN")} VND`;
+    document.getElementById("popup").style.display = "flex";
+  }
+
+  function closePopup() {
+    document.getElementById("popup").style.display = "none";
+  }
+
+  function addToCart(name, imageUrl, priceText) {
+    const price = parseInt(priceText.replace(/[^\d]/g, ""));
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existing = cart.find(p => p.name === name);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ name, imageUrl, price, quantity: 1 });
+    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
+    alert(`Đã thêm ${name} vào giỏ hàng!`);
+  }
+
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    document.getElementById("cart-count").innerText = cart.reduce((sum, p) => sum + p.quantity, 0);
+  }
+
+  function showCart() {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const list = document.getElementById("cart-items");
+    const total = document.getElementById("cart-total");
+    let sum = 0;
+    list.innerHTML = "";
+
+    if (cart.length === 0) {
+      list.innerHTML = "<p>Giỏ hàng đang trống.</p>";
+    } else {
+      cart.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.innerHTML = `
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+            <img src="${item.imageUrl}" style="width:60px; height:60px; border-radius:8px; object-fit:cover;" />
+            <div style="flex:1;">
+              <strong>${item.name}</strong><br>
+              SL: ${item.quantity} x ${item.price.toLocaleString("vi-VN")}<br>
+              <strong>${(item.price * item.quantity).toLocaleString("vi-VN")}</strong>
+            </div>
+            <button onclick="removeItem(${index})">❌</button>
+          </div>
+        `;
+        list.appendChild(row);
+        sum += item.price * item.quantity;
+      });
+    }
+
+    total.innerText = sum.toLocaleString("vi-VN");
+    document.getElementById("cart-popup").style.display = "flex";
+  }
+
+  function removeItem(index) {
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    showCart();
+    updateCartCount();
+  }
+
+  function clearCart() {
+    localStorage.removeItem("cart");
+    showCart();
+    updateCartCount();
+  }
+
+  function closeCartPopup() {
+    document.getElementById("cart-popup").style.display = "none";
+  }
+
+  function submitOrder() {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    if (cart.length === 0) return alert("Giỏ hàng trống!");
+
+    const orderData = {
+      items: cart,
+      total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      createdAt: new Date()
+    };
+
+    db.collection("orders").add(orderData).then(() => {
+      alert("🧾 Đơn hàng đã được gửi đến máy in!");
+      clearCart();
+    }).catch((err) => {
+      console.error("Lỗi gửi đơn:", err);
+      alert("Lỗi khi gửi đơn hàng.");
+    });
+  }
+
+  // Gọi hàm sau khi DOM sẵn sàng
+  window.onload = () => {
+    updateCartCount();
+    loadProducts();
+  };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Bánh & Cà Phê</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Dancing+Script&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #fff0f5;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      color: #e91e63;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .product-card {
+      background: white;
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card img {
+      width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .product-card h3 {
+      color: #d63384;
+      font-size: 18px;
+      margin: 10px 0 5px;
+    }
+    .product-card p {
+      font-size: 14px;
+      color: #555;
+      margin: 0 0 10px;
+    }
+    .product-card .price {
+      font-weight: bold;
+      color: #d63384;
+      margin-bottom: 10px;
+    }
+    .product-card button {
+      background-color: #f472b6;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .product-card button:hover {
+      background-color: #ec4899;
+    }
+  </style>
+</head>
+<body>
+  <h1>☕️ Menu Bánh & Cà Phê</h1>
+  <div class="product-grid" id="menu-list"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2OVhgdTn15eTSmKhZxw3lkC3Wqz0TmRg",
+      authDomain: "nail-fcd76.firebaseapp.com",
+      projectId: "nail-fcd76",
+      storageBucket: "nail-fcd76.appspot.com",
+      messagingSenderId: "292496013690",
+      appId: "1:292496013690:web:09dd92cd65115c497e3ec3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function addToCart(name, imageUrl, priceText) {
+      const price = parseInt(priceText.replace(/[^

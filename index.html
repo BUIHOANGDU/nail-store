@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nail Café – Làm móng & chill</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Dancing+Script&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Nail Café</h1>
+    <nav>
+      <a href="shop.html">Nail & Nail shop</a>
+      <a href="custom-nail.html">Tự thiết kế móng</a>
+      <a href="menu.html">Menu bánh & Cà phê</a>
+    </nav>
+    <!-- Giỏ hàng ở góc phải -->
+    <button class="cart-btn" onclick="updateCartPopup()">🛒 Giỏ (<span id="cart-count">0</span>)</button>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>💅 Làm móng – 🍰 Thưởng trà – 🧱 Chill nhẹ</h2>
+      <p>Trải nghiệm thư giãn cùng combo nail + đồ uống + bánh ngọt tại không gian dễ thương pastel.</p>
+      <a href="booking.html" class="btn">Đặt lịch ngay</a>
+    </section>
+
+    <section class="combos">
+      <h3>✨ Combo nổi bật</h3>
+      <div class="combo-list"></div>
+    </section>
+
+    <section class="top-nails">
+      <h3>🌟 Mẫu nail yêu thích nhất</h3>
+      <div class="nail-gallery"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Nail Café. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2OVhgdTn15eTSmKhZxw3lkC3Wqz0TmRg",
+      authDomain: "nail-fcd76.firebaseapp.com",
+      projectId: "nail-fcd76",
+      storageBucket: "nail-fcd76.appspot.com",
+      messagingSenderId: "292496013690",
+      appId: "1:292496013690:web:09dd92cd65115c497e3ec3"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Popup giỏ hàng -->
+  <div class="cart-popup popup-overlay" id="cart-popup" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#00000088; z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; padding:20px; max-width:500px; width:90%; border-radius:16px;">
+      <h3>🛒 Giỏ hàng của bạn</h3>
+      <div id="cart-items" style="text-align:left; max-height: 250px; overflow:auto;"></div>
+      <p><strong>Tổng tiền:</strong> <span id="cart-total">0đ</span></p>
+      <button onclick="submitOrder()">Xác nhận đơn</button>
+      <button onclick="clearCart()">Xóa tất cả</button>
+    <button class="add-to-cart" onclick="document.getElementById('cart-popup').style.display='none'">Đóng</button>
+
+
+    </div>
+  </div>
+
+  <script src="home.js"></script>
+  <script>
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      document.getElementById("cart-count").innerText = cart.reduce((sum, p) => sum + (p.quantity || 1), 0);
+    }
+    window.onload = updateCartCount;
+  </script>
+</body>
+</html>
