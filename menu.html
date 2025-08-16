@@ -6,68 +6,65 @@
   <title>Menu Bánh & Cà Phê</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Dancing+Script&display=swap" rel="stylesheet">
   <style>
-    .back-btn {
-  display: inline-block;
-  margin-bottom: 15px;
-  padding: 8px 14px;
-  background-color: #f48fb1;
-  color: white;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: background-color 0.2s;
-}
-.back-btn:hover {
-  background-color: #ec407a;
-}
+    .back-btn{
+      display:inline-block;
+      margin-bottom:15px;
+      padding:8px 14px;
+      background-color:#f48fb1;
+      color:#fff;
+      border-radius:8px;
+      text-decoration:none;
+      font-weight:bold;
+      transition:background-color .2s;
+    }
+    .back-btn:hover{ background-color:#ec407a; }
 
-    body {
-      font-family: 'Quicksand', sans-serif;
-      background-color: #fff0f5;
-      margin: 0;
-      padding: 20px;
+    body{
+      font-family:'Quicksand',sans-serif;
+      background-color:#fff0f5;
+      margin:0;
+      padding:20px;
     }
-    h1 {
-      font-family: 'Dancing Script', cursive;
-      color: #e91e63;
-      text-align: center;
-      margin-bottom: 24px;
-      font-size: 40px;
+    h1{
+      font-family:'Dancing Script',cursive;
+      color:#e91e63;
+      text-align:center;
+      margin-bottom:24px;
+      font-size:40px;
     }
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-      max-width: 1000px;
-      margin: auto;
+    .product-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:20px;
+      max-width:1000px;
+      margin:auto;
     }
-    .product-card {
-      background: white;
-      border-radius: 16px;
-      padding: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
+    .product-card{
+      background:#fff;
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 4px 8px rgba(0,0,0,.1);
+      text-align:center;
+      display:flex;
+      flex-direction:column;
     }
-    .product-card img {
-      width: 100%;
-      max-height: 160px;
-      object-fit: cover;
-      border-radius: 10px;
+    .product-card img{
+      width:100%;
+      max-height:160px;
+      object-fit:cover;
+      border-radius:10px;
     }
-    .product-card h3 {
-      color: #d63384;
-      font-size: 18px;
-      margin: 10px 0 5px;
-    }
-    .product-card p { font-size: 14px; color: #555; margin: 0 0 10px; }
-    .product-card .price { font-weight: bold; color: #d63384; margin-bottom: 6px; }
-    .empty, .loading { text-align:center; color:#777; }
+    .product-card h3{ color:#d63384; font-size:18px; margin:10px 0 5px; }
+    .product-card p{ font-size:14px; color:#555; margin:0 0 10px; }
+    .product-card .price{ font-weight:bold; color:#d63384; margin-bottom:6px; }
+    .empty,.loading{ text-align:center; color:#777; }
   </style>
 </head>
 <body>
-  
+
+  <!-- Nút trở về đặt TRONG body, trên tiêu đề -->
+  <a href="home.html" class="back-btn">← Trở về</a>
+
   <h1>☕️ Menu Bánh & Cà Phê</h1>
 
   <div class="product-grid" id="menu-list"></div>
@@ -100,7 +97,7 @@
           <h3>${d.name||''}</h3>
           <p class="price">${money(d.price)}</p>
           <p style="margin-top:-6px; color:#999; font-size:12px;">
-            ${d.category === 'coffee' ? '☕ Đồ uống' : d.category === 'cake' ? '🍰 Bánh' : ''}
+            ${d.category==='coffee' ? '☕ Đồ uống' : d.category==='cake' ? '🍰 Bánh' : ''}
           </p>
         </div>
       `;
@@ -124,7 +121,9 @@
           return tb - ta;
         });
 
-        listEl.innerHTML = items.length ? items.map(card).join('') : '<div class="empty">Chưa có món nào</div>';
+        listEl.innerHTML = items.length
+          ? items.map(card).join('')
+          : '<div class="empty">Chưa có món nào</div>';
       } catch (e) {
         console.error(e);
         listEl.innerHTML = '<div class="empty" style="color:#e11d48">Không tải được menu. Vui lòng thử lại.</div>';
@@ -134,5 +133,4 @@
     loadMenu();
   </script>
 </body>
-  <a href="home.html" class="back-btn">← Trở về</a>
 </html>
