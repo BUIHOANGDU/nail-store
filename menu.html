@@ -16,7 +16,8 @@
       font-family: 'Dancing Script', cursive;
       color: #e91e63;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      font-size: 40px;
     }
     .product-grid {
       display: grid;
@@ -45,36 +46,21 @@
       font-size: 18px;
       margin: 10px 0 5px;
     }
-    .product-card p {
-      font-size: 14px;
-      color: #555;
-      margin: 0 0 10px;
-    }
-    .product-card .price {
-      font-weight: bold;
-      color: #d63384;
-      margin-bottom: 10px;
-    }
-    .product-card button {
-      background-color: #f472b6;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .product-card button:hover {
-      background-color: #ec4899;
-    }
+    .product-card p { font-size: 14px; color: #555; margin: 0 0 10px; }
+    .product-card .price { font-weight: bold; color: #d63384; margin-bottom: 6px; }
+    .empty, .loading { text-align:center; color:#777; }
   </style>
 </head>
 <body>
   <h1>☕️ Menu Bánh & Cà Phê</h1>
+
   <div class="product-grid" id="menu-list"></div>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
+    // ==== Firebase config (giống admin.html)
     const firebaseConfig = {
       apiKey: "AIzaSyC2OVhgdTn15eTSmKhZxw3lkC3Wqz0TmRg",
       authDomain: "nail-fcd76.firebaseapp.com",
@@ -86,5 +72,50 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function addToCart(name, imageUrl, priceText) {
-      const price = parseInt(priceText.replace(/[^
+    // Ổn định kết nối khi chạy trên GitHub Pages
+    db.settings({ experimentalAutoDetectLongPolling: true }, { merge: true });
+
+    // Helpers
+    function money(v){ return Number(v||0).toLocaleString('vi-VN') + 'đ'; }
+    function card(d){
+      return `
+        <div class="product-card">
+          <img src="${d.imageUrl}" alt="${d.name||''}">
+          <h3>${d.name||''}</h3>
+          <p class="price">${money(d.price)}</p>
+          <p style="margin-top:-6px; color:#999; font-size:12px;">
+            ${d.category === 'coffee' ? '☕ Đồ uống' : d.category === 'cake' ? '🍰 Bánh' : ''}
+          </p>
+        </div>
+      `;
+    }
+
+    async function loadMenu(){
+      const listEl = document.getElementById('menu-list');
+      listEl.innerHTML = '<div class="loading">Đang tải...</div>';
+      try {
+        // Lấy tất cả rồi sort ở client để khỏi cần composite index
+        const snap = await db.collection('menu').get();
+        const items = [];
+        snap.forEach(doc => items.push(doc.data()));
+
+        // coffee trước, rồi cake; trong nhóm: mới → cũ
+        const catScore = c => (c==='coffee'?0:c==='cake'?1:2);
+        items.sort((a,b)=>{
+          const ca = catScore(a.category), cb = catScore(b.category);
+          if (ca !== cb) return ca - cb;
+          const ta = (a.createdAt?.seconds||0), tb = (b.createdAt?.seconds||0);
+          return tb - ta;
+        });
+
+        listEl.innerHTML = items.length ? items.map(card).join('') : '<div class="empty">Chưa có món nào</div>';
+      } catch (e) {
+        console.error(e);
+        listEl.innerHTML = '<div class="empty" style="color:#e11d48">Không tải được menu. Vui lòng thử lại.</div>';
+      }
+    }
+
+    loadMenu();
+  </script>
+</body>
+</html>
