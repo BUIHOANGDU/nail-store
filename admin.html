@@ -142,10 +142,16 @@
       messagingSenderId: "292496013690",
       appId: "1:292496013690:web:09dd92cd65115c497e3ec3"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+   firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+db.settings({
+  experimentalAutoDetectLongPolling: true,
+  useFetchStreams: false
+  // Nếu vẫn gặp lỗi, bật dòng dưới thay thế:
+  // experimentalForceLongPolling: true
+});
+const storage = firebase.storage();
 
     // ====== TIỆN ÍCH CHUNG ======
     function digitsOnly(el){ el.value = el.value.replace(/[^\d]/g, ''); }
