@@ -1,79 +1,89 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Menu Bánh & Cà Phê</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Dancing+Script&display=swap" rel="stylesheet">
   <style>
-    .back-btn{
-      display:inline-block;
-      margin-bottom:15px;
-      padding:8px 14px;
-      background-color:#f48fb1;
-      color:#fff;
-      border-radius:8px;
-      text-decoration:none;
-      font-weight:bold;
-      transition:background-color .2s;
-    }
-    .back-btn:hover{ background-color:#ec407a; }
+    body{ background:#fff0f5; font-family:'Quicksand',sans-serif; margin:0 }
+    header{ background:#ffe0ec; padding:20px; text-align:center; position:relative }
+    h1{ font-family:'Dancing Script',cursive; font-size:2.5em; color:#e91e63; margin:0 }
+    .back-btn{ position:absolute; left:20px; top:20px; background:#f48fb1; color:#fff; border:none; border-radius:20px; padding:8px 14px; font-weight:700; cursor:pointer }
+    .back-btn:hover{ background:#ec407a }
+    .cart-btn{ position:absolute; right:20px; top:20px; background:#f472b6; color:#fff; border:none; border-radius:20px; padding:8px 16px; cursor:pointer }
+    .cart-btn:hover{ background:#ec4899 }
 
-    body{
-      font-family:'Quicksand',sans-serif;
-      background-color:#fff0f5;
-      margin:0;
-      padding:20px;
-    }
-    h1{
-      font-family:'Dancing Script',cursive;
-      color:#e91e63;
-      text-align:center;
-      margin-bottom:24px;
-      font-size:40px;
-    }
-    .product-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-      gap:20px;
-      max-width:1000px;
-      margin:auto;
-    }
-    .product-card{
-      background:#fff;
-      border-radius:16px;
-      padding:12px;
-      box-shadow:0 4px 8px rgba(0,0,0,.1);
-      text-align:center;
-      display:flex;
-      flex-direction:column;
-    }
-    .product-card img{
-      width:100%;
-      max-height:160px;
-      object-fit:cover;
-      border-radius:10px;
-    }
-    .product-card h3{ color:#d63384; font-size:18px; margin:10px 0 5px; }
-    .product-card p{ font-size:14px; color:#555; margin:0 0 10px; }
-    .product-card .price{ font-weight:bold; color:#d63384; margin-bottom:6px; }
-    .empty,.loading{ text-align:center; color:#777; }
+    .filter-bar{ text-align:center; margin:20px }
+    .filter-bar select{ padding:10px; font-size:1rem; border-radius:12px; border:1px solid #f9a8d4; background:#fff }
+
+    .product-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:20px; padding:30px; max-width:1000px; margin:auto }
+    .product-card{ background:#fff; border-radius:16px; padding:12px; box-shadow:0 4px 8px rgba(0,0,0,.1); text-align:center; transition:transform .2s; display:flex; flex-direction:column; justify-content:space-between; min-height:360px }
+    .product-card:hover{ transform:scale(1.03) }
+    .product-card img{ width:100%; max-height:160px; object-fit:cover; border-radius:10px; cursor:pointer }
+    .product-name{ margin-top:10px; font-weight:600; font-size:1rem; color:#d63384 }
+    .product-price{ color:#777; font-size:.9rem; margin-bottom:8px }
+    .add-to-cart{ background:#f472b6; color:#fff; padding:8px 12px; border:none; border-radius:10px; font-size:.9rem; cursor:pointer }
+    .add-to-cart:hover{ background:#ec4899 }
+
+    footer{ background:#ffe0ec; text-align:center; padding:20px; font-size:.9rem; margin-top:40px }
+
+    .popup-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:1000 }
+    .popup-content{ background:#fff; padding:20px; border-radius:16px; max-width:420px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,.2) }
+    .popup-content img{ width:100%; max-height:250px; object-fit:cover; border-radius:12px }
+    .popup-close{ margin-top:15px; background:#e91e63; color:#fff; border:none; padding:10px 20px; border-radius:12px; font-size:1rem; cursor:pointer }
+    .popup-close:hover{ background:#c2185b }
   </style>
 </head>
 <body>
+  <header>
+    <button class="back-btn" onclick="window.location.href='./'">← Trở về</button>
+    <h1>Menu Bánh & Cà Phê</h1>
+    <button class="cart-btn" onclick="showCart()">🛒 Giỏ (<span id="cart-count">0</span>)</button>
+  </header>
 
-  <!-- Nút trở về đặt TRONG body, trên tiêu đề -->
- <a href="/nail-store/" class="back-btn">← Trở về</a>
+  <div class="filter-bar">
+    <label for="filter">Lọc theo loại: </label>
+    <select id="filter" onchange="renderFilteredItems()">
+      <option value="all">Tất cả</option>
+      <option value="coffee">Cà phê/Đồ uống</option>
+      <option value="cake">Bánh ngọt</option>
+    </select>
+  </div>
 
-  <h1>☕️ Menu Bánh & Cà Phê</h1>
+  <div class="product-grid" id="item-list"></div>
 
-  <div class="product-grid" id="menu-list"></div>
+  <footer>
+    <p>&copy; 2025 Nail Café. All rights reserved.</p>
+  </footer>
 
-  <!-- Firebase SDKs -->
+  <!-- Popup chi tiết -->
+  <div class="popup-overlay" id="popup">
+    <div class="popup-content">
+      <img id="popup-img" src="" alt="Ảnh món">
+      <h3 id="popup-name"></h3>
+      <p id="popup-price"></p>
+      <button class="popup-close" onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Popup giỏ hàng -->
+  <div class="popup-overlay" id="cart-popup">
+    <div class="popup-content">
+      <h3>🛒 Giỏ hàng của bạn</h3>
+      <div id="cart-items" style="text-align:left; max-height: 250px; overflow:auto;"></div>
+      <p><strong>Tổng tiền:</strong> <span id="cart-total">0</span> VND</p>
+      <button onclick="submitOrder()">Xác nhận đơn</button>
+      <button onclick="clearCart()">Xóa tất cả</button>
+      <button class="popup-close" onclick="closeCartPopup()">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
-    // ==== Firebase config (giống admin.html)
+    // Firebase config (giống admin)
     const firebaseConfig = {
       apiKey: "AIzaSyC2OVhgdTn15eTSmKhZxw3lkC3Wqz0TmRg",
       authDomain: "nail-fcd76.firebaseapp.com",
@@ -84,53 +94,143 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    // Ổn định kết nối khi chạy trên GitHub Pages
     db.settings({ experimentalAutoDetectLongPolling: true }, { merge: true });
 
-    // Helpers
-    function money(v){ return Number(v||0).toLocaleString('vi-VN') + 'đ'; }
-    function card(d){
-      return `
-        <div class="product-card">
-          <img src="${d.imageUrl}" alt="${d.name||''}">
-          <h3>${d.name||''}</h3>
-          <p class="price">${money(d.price)}</p>
-          <p style="margin-top:-6px; color:#999; font-size:12px;">
-            ${d.category==='coffee' ? '☕ Đồ uống' : d.category==='cake' ? '🍰 Bánh' : ''}
-          </p>
-        </div>
-      `;
+    // ====== DATA & RENDER ======
+    let allItems = [];
+
+    function loadMenuItems(){
+      db.collection("menu").get().then(snapshot=>{
+        const catPriority = { coffee:0, cake:1 }; // thứ tự hiển thị nhóm
+        allItems = snapshot.docs.map(doc=>{
+          const d = doc.data();
+          d.createdAt = d.createdAt?.toDate ? d.createdAt.toDate() : new Date(0);
+          return d;
+        });
+        allItems.sort((a,b)=>{
+          const k = (catPriority[a.category] ?? 9) - (catPriority[b.category] ?? 9);
+          if (k!==0) return k;
+          return b.createdAt - a.createdAt; // mới trước
+        });
+        renderFilteredItems();
+      }).catch(console.error);
     }
 
-    async function loadMenu(){
-      const listEl = document.getElementById('menu-list');
-      listEl.innerHTML = '<div class="loading">Đang tải...</div>';
-      try {
-        // Lấy tất cả rồi sort ở client để khỏi cần composite index
-        const snap = await db.collection('menu').get();
-        const items = [];
-        snap.forEach(doc => items.push(doc.data()));
+    function renderFilteredItems(){
+      const filter = document.getElementById("filter").value;
+      const container = document.getElementById("item-list");
+      container.innerHTML = "";
+      const list = filter==="all" ? allItems : allItems.filter(i=>i.category===filter);
 
-        // coffee trước, rồi cake; trong nhóm: mới → cũ
-        const catScore = c => (c==='coffee'?0:c==='cake'?1:2);
-        items.sort((a,b)=>{
-          const ca = catScore(a.category), cb = catScore(b.category);
-          if (ca !== cb) return ca - cb;
-          const ta = (a.createdAt?.seconds||0), tb = (b.createdAt?.seconds||0);
-          return tb - ta;
-        });
+      list.forEach(d=>{
+        const div = document.createElement("div");
+        div.className = "product-card";
+        div.innerHTML = `
+          <img src="${d.imageUrl}" alt="${d.name||''}" onclick="showPopup('${escapeHtml(d.name)}','${d.imageUrl}','${d.price}')">
+          <div class="product-info">
+            <div class="product-name">${escapeHtml(d.name||'')}</div>
+            <div class="product-price">${Number(d.price||0).toLocaleString('vi-VN')} VND</div>
+          </div>
+          <button class="add-to-cart" onclick="addToCart('${escapeHtml(d.name)}','${d.imageUrl}','${d.price}')">Thêm vào giỏ</button>
+        `;
+        container.appendChild(div);
+      });
 
-        listEl.innerHTML = items.length
-          ? items.map(card).join('')
-          : '<div class="empty">Chưa có món nào</div>';
-      } catch (e) {
-        console.error(e);
-        listEl.innerHTML = '<div class="empty" style="color:#e11d48">Không tải được menu. Vui lòng thử lại.</div>';
+      if(list.length===0){
+        container.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#888">Chưa có món phù hợp</div>`;
       }
     }
 
-    loadMenu();
+    // ====== POPUP CHI TIẾT ======
+    function showPopup(name,img,price){
+      document.getElementById("popup-name").innerText = unescapeHtml(name);
+      document.getElementById("popup-img").src = img;
+      document.getElementById("popup-price").innerText = `${Number(price||0).toLocaleString('vi-VN')} VND`;
+      document.getElementById("popup").style.display = "flex";
+    }
+    function closePopup(){ document.getElementById("popup").style.display = "none"; }
+
+    // ====== CART ======
+    function addToCart(name,imageUrl,priceText){
+      const price = parseInt(String(priceText).replace(/[^\d]/g,"")) || 0;
+      let cart = JSON.parse(localStorage.getItem("cart_menu") || "[]");
+      const idx = cart.findIndex(x=>x.name===name);
+      if(idx>-1) cart[idx].quantity += 1;
+      else cart.push({ name, imageUrl, price, quantity:1 });
+      localStorage.setItem("cart_menu", JSON.stringify(cart));
+      updateCartCount();
+      alert(`Đã thêm "${name}" vào giỏ hàng!`);
+    }
+
+    function updateCartCount(){
+      const cart = JSON.parse(localStorage.getItem("cart_menu") || "[]");
+      document.getElementById("cart-count").innerText = cart.reduce((s,i)=>s+i.quantity,0);
+    }
+
+    function showCart(){
+      const cart = JSON.parse(localStorage.getItem("cart_menu") || "[]");
+      const list = document.getElementById("cart-items");
+      const total = document.getElementById("cart-total");
+      let sum = 0; list.innerHTML = "";
+
+      if(cart.length===0){ list.innerHTML = "<p>Giỏ hàng đang trống.</p>"; }
+      else{
+        cart.forEach((item,idx)=>{
+          const row = document.createElement("div");
+          row.innerHTML = `
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+              <img src="${item.imageUrl}" style="width:60px;height:60px;border-radius:8px;object-fit:cover" />
+              <div style="flex:1">
+                <strong>${escapeHtml(item.name)}</strong><br>
+                SL: ${item.quantity} × ${item.price.toLocaleString("vi-VN")}<br>
+                <strong>${(item.price*item.quantity).toLocaleString("vi-VN")}</strong>
+              </div>
+              <button onclick="removeItem(${idx})">❌</button>
+            </div>`;
+          list.appendChild(row);
+          sum += item.price*item.quantity;
+        });
+      }
+      total.innerText = sum.toLocaleString("vi-VN");
+      document.getElementById("cart-popup").style.display = "flex";
+    }
+
+    function removeItem(i){
+      let cart = JSON.parse(localStorage.getItem("cart_menu") || "[]");
+      cart.splice(i,1);
+      localStorage.setItem("cart_menu", JSON.stringify(cart));
+      showCart(); updateCartCount();
+    }
+    function clearCart(){ localStorage.removeItem("cart_menu"); showCart(); updateCartCount(); }
+    function closeCartPopup(){ document.getElementById("cart-popup").style.display = "none"; }
+
+    // ====== SUBMIT ORDER ======
+    function submitOrder(){
+      const cart = JSON.parse(localStorage.getItem("cart_menu") || "[]");
+      if(cart.length===0) return alert("Giỏ hàng trống!");
+
+      const order = {
+        source: "menu", // phân biệt với orders của shop
+        items: cart,
+        total: cart.reduce((s,i)=>s+i.price*i.quantity,0),
+        createdAt: new Date()
+      };
+
+      db.collection("orders").add(order).then(()=>{
+        alert("🧾 Đơn hàng đã được gửi!");
+        clearCart();
+      }).catch(err=>{
+        console.error(err);
+        alert("Lỗi khi gửi đơn.");
+      });
+    }
+
+    // ====== UTIL ======
+    function escapeHtml(s=""){ return s.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m])); }
+    function unescapeHtml(s=""){ const e=document.createElement("textarea"); e.innerHTML=s; return e.value; }
+
+    // Init
+    window.onload = ()=>{ updateCartCount(); loadMenuItems(); };
   </script>
 </body>
 </html>
