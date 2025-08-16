@@ -146,9 +146,9 @@
 const auth = firebase.auth();
 const db = firebase.firestore();
 db.settings({
-  
   experimentalForceLongPolling: true
-});
+}, { merge: true });
+
 const storage = firebase.storage();
 
     // ====== TIỆN ÍCH CHUNG ======
