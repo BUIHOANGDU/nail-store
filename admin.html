@@ -130,7 +130,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
   <script>
     // ==== CẤU HÌNH FIREBASE (giữ nguyên dự án của bạn) ====
@@ -149,7 +148,6 @@ db.settings({
   experimentalForceLongPolling: true
 }, { merge: true });
 
-const storage = firebase.storage();
 
     // ====== TIỆN ÍCH CHUNG ======
     function digitsOnly(el){ el.value = el.value.replace(/[^\d]/g, ''); }
@@ -165,6 +163,19 @@ const storage = firebase.storage();
       if (v === undefined || v === null || isNaN(v)) return '';
       return Number(v).toLocaleString('vi-VN');
     }
+// Upload ảnh lên Imgur (không dùng Firebase Storage)
+async function uploadToImgur(file) {
+  const form = new FormData();
+  form.append("image", file);
+  const res = await fetch("https://api.imgur.com/3/image", {
+    method: "POST",
+    headers: { Authorization: "Client-ID 7bd825b419d3d23" }, // Client ID của bạn
+    body: form
+  });
+  const data = await res.json();
+  if (!data?.success) throw new Error("Imgur upload failed");
+  return data.data.link; // URL ảnh
+}
 
     // ====== AUTH ======
     auth.onAuthStateChanged(user => {
@@ -197,7 +208,7 @@ const storage = firebase.storage();
       const type = document.getElementById('comboType').value;
       const file = document.getElementById('comboImg').files[0];
       if(!file || !name || !price){ alert('Điền đầy đủ thông tin và chọn ảnh!'); return; }
-      const imageUrl = await uploadToStorage('combos', file);
+    const imageUrl = await uploadToImgur(file);
       await db.collection('combos').add({ name, desc, price, type, imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       alert('Đã thêm combo');
       document.getElementById('comboName').value = '';
@@ -236,7 +247,7 @@ const storage = firebase.storage();
       const ref = db.collection('combos').doc(id);
       const current = (await ref.get()).data() || {};
       let imageUrl = current.imageUrl;
-      if(file){ imageUrl = await uploadToStorage('combos', file); }
+      if(file){ imageUrl = await uploadToImgur(file); }
       await ref.update({ name, desc, price, imageUrl });
       alert('Đã cập nhật combo!');
       loadComboList();
@@ -268,7 +279,7 @@ const storage = firebase.storage();
       const type = document.getElementById('productType').value;
       const file = document.getElementById('productImg').files[0];
       if(!file || !name || !price){ alert('Điền đủ thông tin và chọn ảnh!'); return; }
-      const imageUrl = await uploadToStorage('products', file);
+     const imageUrl = await uploadToImgur(file);
       await db.collection('products').add({ name, price, type, imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       alert('Đã thêm sản phẩm!');
       document.getElementById('productName').value = '';
@@ -306,7 +317,7 @@ const storage = firebase.storage();
       const ref = db.collection('products').doc(id);
       const current = (await ref.get()).data() || {};
       let imageUrl = current.imageUrl;
-      if(file){ imageUrl = await uploadToStorage('products', file); }
+      if(file){ imageUrl = await uploadToImgur(file); }
       await ref.update({ name, price, type, imageUrl });
       alert('Đã cập nhật sản phẩm!');
       loadProductList();
@@ -336,7 +347,7 @@ const storage = firebase.storage();
       const price = parseInt(document.getElementById('menuPrice').value.replace(/[^\d]/g,''));
       const file = document.getElementById('menuImg').files[0];
       if(!file || !name || !price){ alert('Điền đủ thông tin và chọn ảnh!'); return; }
-      const imageUrl = await uploadToStorage('menu', file);
+     const imageUrl = await uploadToImgur(file);
       await db.collection('menu').add({ category, name, price, imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       alert('Đã thêm món!');
       document.getElementById('menuName').value = '';
@@ -368,7 +379,7 @@ const storage = firebase.storage();
       const ref = db.collection('menu').doc(id);
       const current = (await ref.get()).data() || {};
       let imageUrl = current.imageUrl;
-      if(file){ imageUrl = await uploadToStorage('menu', file); }
+      if(file){ imageUrl = await uploadToImgur(file); }
       await ref.update({ name, price, imageUrl });
       alert('Đã cập nhật món!');
       loadMenuList();
