@@ -146,10 +146,8 @@
 const auth = firebase.auth();
 const db = firebase.firestore();
 db.settings({
-  experimentalAutoDetectLongPolling: true,
-  useFetchStreams: false
-  // Nếu vẫn gặp lỗi, bật dòng dưới thay thế:
-  // experimentalForceLongPolling: true
+  
+  experimentalForceLongPolling: true
 });
 const storage = firebase.storage();
 
