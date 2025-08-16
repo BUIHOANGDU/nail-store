@@ -152,13 +152,7 @@ db.settings({
     // ====== TIỆN ÍCH CHUNG ======
     function digitsOnly(el){ el.value = el.value.replace(/[^\d]/g, ''); }
 
-    async function uploadToStorage(pathPrefix, file){
-      const fileName = `${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
-      const ref = storage.ref().child(`${pathPrefix}/${fileName}`);
-      await ref.put(file);
-      return await ref.getDownloadURL();
-    }
-
+    
     function money(v){
       if (v === undefined || v === null || isNaN(v)) return '';
       return Number(v).toLocaleString('vi-VN');
