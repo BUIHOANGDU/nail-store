@@ -6,6 +6,21 @@
   <title>Menu Bánh & Cà Phê</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Dancing+Script&display=swap" rel="stylesheet">
   <style>
+    .back-btn {
+  display: inline-block;
+  margin-bottom: 15px;
+  padding: 8px 14px;
+  background-color: #f48fb1;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+.back-btn:hover {
+  background-color: #ec407a;
+}
+
     body {
       font-family: 'Quicksand', sans-serif;
       background-color: #fff0f5;
@@ -52,6 +67,7 @@
   </style>
 </head>
 <body>
+  
   <h1>☕️ Menu Bánh & Cà Phê</h1>
 
   <div class="product-grid" id="menu-list"></div>
@@ -118,4 +134,5 @@
     loadMenu();
   </script>
 </body>
+  <a href="home.html" class="back-btn">← Trở về</a>
 </html>
