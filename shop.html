@@ -9,6 +9,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Dancing+Script&display=swap" rel="stylesheet">
 
   <style>
+    .back-btn {
+  position:absolute;
+  left:20px;
+  top:20px;
+  background:#f48fb1;
+  color:#fff;
+  border:none;
+  border-radius:20px;
+  padding:8px 14px;
+  font-size:1rem;
+  cursor:pointer;
+}
+.back-btn:hover {
+  background:#ec407a;
+}
+
     body {
       background-color: #fff0f5;
       font-family: 'Quicksand', sans-serif;
@@ -156,6 +172,7 @@
 </head>
 <body>
   <header>
+     <button class="back-btn" onclick="window.location.href='./'">← Trở về</button>
     <h1>💅 Nail & Nail Shop</h1>
     <button class="cart-btn" onclick="showCart()">🛒 Giỏ (<span id="cart-count">0</span>)</button>
   </header>
