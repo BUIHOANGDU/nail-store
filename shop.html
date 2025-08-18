@@ -210,7 +210,7 @@
     <div class="popup-content">
       <h3>🛒 Giỏ hàng của bạn</h3>
       <div id="cart-items" style="text-align:left; max-height: 250px; overflow:auto;"></div>
-      <p><strong>Tổng tiền:</strong> <span id="cart-total">0</span> VND</p>
+      <p><strong>Tổng tiền:</strong> <span id="cart-total">0</span>￥</p>
       <button onclick="submitOrder()">Xác nhận đơn</button>
       <button onclick="clearCart()">Xóa tất cả</button>
       <button class="popup-close" onclick="closeCartPopup()">Đóng</button>
@@ -301,7 +301,7 @@
           <img src="${d.imageUrl}" alt="${d.name}" onclick="showPopup('${escapeHtml(d.name)}', '${d.imageUrl}', '${d.price}')">
           <div class="product-info">
             <div class="product-name">${escapeHtml(d.name)}</div>
-            <div class="product-price">${Number(d.price||0).toLocaleString("vi-VN")}đ</div>
+            <div class="product-price">${Number(d.price||0).toLocaleString("vi-VN")}￥</div>
           </div>
           <button class="add-to-cart" onclick="addToCart('${escapeHtml(d.name)}', '${d.imageUrl}', '${d.price}')">Thêm vào giỏ</button>
         `;
@@ -313,7 +313,7 @@
     function showPopup(name, img, price) {
       document.getElementById("popup-name").innerText = unescapeHtml(name);
       document.getElementById("popup-img").src = img;
-      document.getElementById("popup-price").innerText = `${Number(price||0).toLocaleString("vi-VN")}đ`;
+      document.getElementById("popup-price").innerText = `${Number(price||0).toLocaleString("vi-VN")}￥;
       document.getElementById("popup").style.display = "flex";
     }
     function closePopup() { document.getElementById("popup").style.display = "none"; }
